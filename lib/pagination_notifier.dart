@@ -77,7 +77,7 @@ class PaginationNotifier<T> extends StateNotifier<PaginationState<T>> {
     state = PaginationState.onGoingLoading(_items);
 
     try {
-      await Future.delayed(const Duration(seconds: 10));
+      await Future.delayed(const Duration(seconds: 1));
       final result = await fetchNextItems(_items.last, _items.length);
       updateData(result);
     } catch (e, stk) {

@@ -38,13 +38,13 @@ class PaginatedListView extends ConsumerWidget {
       double currentScroll = scrollController.position.pixels;
       double delta = MediaQuery.of(context).size.width * 0.20;
       if (maxScroll - currentScroll <= delta) {
-        ref.read(postsPaginatedStreamProvider.notifier).fetchNextPage();
+        ref.read(itemsProvider.notifier).fetchNextPage();
       }
     });
     return Scaffold(
       body: CustomScrollView(
         controller: scrollController,
-        restorationId: "posts List",
+        restorationId: "items List",
         slivers: const [
           SliverAppBar(
             centerTitle: true,
@@ -56,7 +56,7 @@ class PaginatedListView extends ConsumerWidget {
               height: 20,
             ),
           ),
-          PostsList(),
+          ItemsList(),
           PostsListBottomWidget(),
         ],
       ),
@@ -64,33 +64,31 @@ class PaginatedListView extends ConsumerWidget {
   }
 }
 
-class PostsList extends StatelessWidget {
-  const PostsList({Key? key}) : super(key: key);
+class ItemsList extends StatelessWidget {
+  const ItemsList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
-      final state = ref.watch(postsPaginatedStreamProvider);
+      final state = ref.watch(itemsProvider);
       return state.maybeWhen(
         orElse: () => const SliverToBoxAdapter(
           child: SizedBox.shrink(),
         ),
-        data: (posts) {
-          return posts.isEmpty
+        data: (items) {
+          return items.isEmpty
               ? SliverToBoxAdapter(
                   child: Column(
-                    children: const [
-                      // IconButton(
-                      //   onPressed: () {
-                      //     ref
-                      //         .read(postsPaginatedStreamProvider.notifier)
-                      //         .fetchFirstPage(true);
-                      //   },
-                      //   icon: const Icon(Icons.replay),
-                      // ),
-                      // const Chip(
-                      //   label: Text("No posts Found!"),
-                      // ),
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          ref.read(itemsProvider.notifier).fetchFirstPage(true);
+                        },
+                        icon: const Icon(Icons.replay),
+                      ),
+                      const Chip(
+                        label: Text("No items Found!"),
+                      ),
                     ],
                   ),
                 )
@@ -101,11 +99,11 @@ class PostsList extends StatelessWidget {
                         title: Text("Item ${index + 1}"),
                       );
                     },
-                    childCount: posts.length,
+                    childCount: items.length,
                   ),
                 );
         },
-        loading: (posts) => const SliverToBoxAdapter(
+        loading: (items) => const SliverToBoxAdapter(
             child: Center(child: CircularProgressIndicator())),
         error: (e, stk) => SliverToBoxAdapter(
           child: Center(
@@ -125,7 +123,7 @@ class PostsList extends StatelessWidget {
             ),
           ),
         ),
-        onGoingLoading: (posts) {
+        onGoingLoading: (items) {
           return SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -133,11 +131,11 @@ class PostsList extends StatelessWidget {
                   title: Text("Item ${index + 1}"),
                 );
               },
-              childCount: posts.length,
+              childCount: items.length,
             ),
           );
         },
-        onGoingError: (posts, e, stk) {
+        onGoingError: (items, e, stk) {
           return SliverList(
             delegate: SliverChildBuilderDelegate(
               (context, index) {
@@ -145,7 +143,7 @@ class PostsList extends StatelessWidget {
                   title: Text("Item ${index + 1}"),
                 );
               },
-              childCount: posts.length,
+              childCount: items.length,
             ),
           );
         },
@@ -163,7 +161,7 @@ class PostsListBottomWidget extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 80),
         child: Consumer(builder: (context, ref, child) {
-          final state = ref.watch(postsPaginatedStreamProvider);
+          final state = ref.watch(itemsProvider);
           return state.maybeWhen(
             orElse: () => const SizedBox.shrink(),
             onGoingLoading: (items) =>

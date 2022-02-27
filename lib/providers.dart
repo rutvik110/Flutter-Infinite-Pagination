@@ -3,18 +3,18 @@ import 'package:infinite_pagination/database.dart';
 import 'package:infinite_pagination/pagination_notifier.dart';
 import 'package:infinite_pagination/pagination_state.dart';
 
-final postsPaginatedStreamProvider =
-    StateNotifierProvider<PaginationNotifier<Post>, PaginationState<Post>>(
+final itemsProvider =
+    StateNotifierProvider<PaginationNotifier<Item>, PaginationState<Item>>(
         (ref) {
   return PaginationNotifier(
-      hitsPerPage: 20,
-      fetchNextItems: (
-        chase,
-        offset,
-      ) {
-        return ref.read(databaseProvider).streamPosts(chase, offset);
-      })
-    ..init();
+    hitsPerPage: 20,
+    fetchNextItems: (
+      chase,
+      offset,
+    ) {
+      return ref.read(databaseProvider).fetchItems(chase, offset);
+    },
+  )..init();
 });
 
 final databaseProvider = Provider<MyDatabase>((ref) => MyDatabase());

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Post {
-  Post({
+class Item {
+  Item({
     required this.title,
     required this.body,
     required this.createdAt,
@@ -12,30 +12,33 @@ class Post {
 }
 
 class MyDatabase {
-  Future<List<Post>> streamPosts(
-    Post? chase,
+  Future<List<Item>> fetchItems(
+    Item? items,
     int offset,
   ) async {
-    final postsCollectionRef = FirebaseFirestore.instance.collection('posts');
-    if (chase == null) {
-      final documentSnapshot = await postsCollectionRef
+    final itemsCollectionRef = FirebaseFirestore.instance.collection('posts');
+    if (items == null) {
+      final documentSnapshot = await itemsCollectionRef
           .orderBy("createdAt", descending: true)
           .limit(20)
           .get();
       return documentSnapshot.docs
-          .map<Post>((data) => Post(
+          .map<Item>(
+            (data) => Item(
               title: data['title'],
               body: data['body'],
-              createdAt: data['createdAt']),)
+              createdAt: data['createdAt'],
+            ),
+          )
           .toList();
     } else {
-      final documentSnapshot = await postsCollectionRef
+      final documentSnapshot = await itemsCollectionRef
           .orderBy("createdAt", descending: true)
-          .startAfter([chase.createdAt])
+          .startAfter([items.createdAt])
           .limit(20)
           .get();
       return documentSnapshot.docs
-          .map<Post>((data) => Post(
+          .map<Item>((data) => Item(
               title: data['title'],
               body: data['body'],
               createdAt: data['createdAt']))
