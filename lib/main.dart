@@ -83,21 +83,27 @@ class ScrollToTopButton extends StatelessWidget {
       animation: scrollController,
       builder: (context, child) {
         double scrollOffset = scrollController.offset;
-        return scrollOffset > MediaQuery.of(context).size.height * 0.5
-            ? FloatingActionButton(
-                tooltip: "Scroll to top",
-                child: const Icon(
-                  Icons.arrow_upward,
-                ),
-                onPressed: () async {
-                  scrollController.animateTo(
-                    0,
-                    duration: const Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
-              )
-            : const SizedBox.shrink();
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            return ScaleTransition(scale: animation, child: child);
+          },
+          child: scrollOffset > MediaQuery.of(context).size.height * 0.5
+              ? FloatingActionButton(
+                  tooltip: "Scroll to top",
+                  child: const Icon(
+                    Icons.arrow_upward,
+                  ),
+                  onPressed: () async {
+                    scrollController.animateTo(
+                      0,
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
+                )
+              : const SizedBox.shrink(),
+        );
       },
     );
   }
