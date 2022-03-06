@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:infinite_pagination/providers.dart';
+import 'package:infinite_pagination/src/database.dart';
+import 'package:infinite_pagination/src/providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,10 +39,13 @@ class PaginatedListView extends ConsumerWidget {
       double currentScroll = scrollController.position.pixels;
       double delta = MediaQuery.of(context).size.width * 0.20;
       if (maxScroll - currentScroll <= delta) {
-        ref.read(itemsProvider.notifier).fetchNextPage();
+        ref.read(itemsProvider.notifier).fetchNextBatch();
       }
     });
     return Scaffold(
+      floatingActionButton: ScrollToTopButton(
+        scrollController: scrollController,
+      ),
       body: CustomScrollView(
         controller: scrollController,
         restorationId: "items List",
@@ -57,9 +61,70 @@ class PaginatedListView extends ConsumerWidget {
             ),
           ),
           ItemsList(),
-          PostsListBottomWidget(),
+          NoMoreItems(),
+          OnGoingBottomWidget(),
         ],
       ),
+    );
+  }
+}
+
+class ScrollToTopButton extends StatelessWidget {
+  const ScrollToTopButton({
+    Key? key,
+    required this.scrollController,
+  }) : super(key: key);
+
+  final ScrollController scrollController;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: scrollController,
+      builder: (context, child) {
+        double scrollOffset = scrollController.offset;
+        return scrollOffset > MediaQuery.of(context).size.height * 0.5
+            ? FloatingActionButton(
+                tooltip: "Scroll to top",
+                child: const Icon(
+                  Icons.arrow_upward,
+                ),
+                onPressed: () async {
+                  scrollController.animateTo(
+                    0,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                },
+              )
+            : const SizedBox.shrink();
+      },
+    );
+  }
+}
+
+class NoMoreItems extends ConsumerWidget {
+  const NoMoreItems({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(itemsProvider);
+
+    return SliverToBoxAdapter(
+      child: state.maybeWhen(
+          orElse: () => const SizedBox.shrink(),
+          data: (items) {
+            final nomoreItems = ref.read(itemsProvider.notifier).noMoreItems;
+            return nomoreItems
+                ? const Padding(
+                    padding: EdgeInsets.only(bottom: 20),
+                    child: Text(
+                      "No More Items Found!",
+                      textAlign: TextAlign.center,
+                    ),
+                  )
+                : const SizedBox.shrink();
+          }),
     );
   }
 }
@@ -71,10 +136,7 @@ class ItemsList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
       final state = ref.watch(itemsProvider);
-      return state.maybeWhen(
-        orElse: () => const SliverToBoxAdapter(
-          child: SizedBox.shrink(),
-        ),
+      return state.when(
         data: (items) {
           return items.isEmpty
               ? SliverToBoxAdapter(
@@ -82,7 +144,7 @@ class ItemsList extends StatelessWidget {
                     children: [
                       IconButton(
                         onPressed: () {
-                          ref.read(itemsProvider.notifier).fetchFirstPage(true);
+                          ref.read(itemsProvider.notifier).fetchFirstBatch();
                         },
                         icon: const Icon(Icons.replay),
                       ),
@@ -92,18 +154,11 @@ class ItemsList extends StatelessWidget {
                     ],
                   ),
                 )
-              : SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return ListTile(
-                        title: Text("Item ${index + 1}"),
-                      );
-                    },
-                    childCount: items.length,
-                  ),
+              : ItemsListBuilder(
+                  items: items,
                 );
         },
-        loading: (items) => const SliverToBoxAdapter(
+        loading: () => const SliverToBoxAdapter(
             child: Center(child: CircularProgressIndicator())),
         error: (e, stk) => SliverToBoxAdapter(
           child: Center(
@@ -124,27 +179,13 @@ class ItemsList extends StatelessWidget {
           ),
         ),
         onGoingLoading: (items) {
-          return SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return ListTile(
-                  title: Text("Item ${index + 1}"),
-                );
-              },
-              childCount: items.length,
-            ),
+          return ItemsListBuilder(
+            items: items,
           );
         },
         onGoingError: (items, e, stk) {
-          return SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return ListTile(
-                  title: Text("Item ${index + 1}"),
-                );
-              },
-              childCount: items.length,
-            ),
+          return ItemsListBuilder(
+            items: items,
           );
         },
       );
@@ -152,14 +193,37 @@ class ItemsList extends StatelessWidget {
   }
 }
 
-class PostsListBottomWidget extends StatelessWidget {
-  const PostsListBottomWidget({Key? key}) : super(key: key);
+class ItemsListBuilder extends StatelessWidget {
+  const ItemsListBuilder({
+    Key? key,
+    required this.items,
+  }) : super(key: key);
+
+  final List<Item> items;
 
   @override
   Widget build(BuildContext context) {
-    return SliverToBoxAdapter(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 80),
+    return SliverList(
+      delegate: SliverChildBuilderDelegate(
+        (context, index) {
+          return ListTile(
+            title: Text("Item ${index + 1}"),
+          );
+        },
+        childCount: items.length,
+      ),
+    );
+  }
+}
+
+class OnGoingBottomWidget extends StatelessWidget {
+  const OnGoingBottomWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.all(40),
+      sliver: SliverToBoxAdapter(
         child: Consumer(builder: (context, ref, child) {
           final state = ref.watch(itemsProvider);
           return state.maybeWhen(

@@ -12,16 +12,15 @@ class Item {
 }
 
 class MyDatabase {
-  Future<List<Item>> fetchItems(
-    Item? items,
-    int offset,
-  ) async {
+  Future<List<Item>> fetchItems(Item? item) async {
     final itemsCollectionRef = FirebaseFirestore.instance.collection('posts');
-    if (items == null) {
+
+    if (item == null) {
       final documentSnapshot = await itemsCollectionRef
           .orderBy("createdAt", descending: true)
-          .limit(20)
+          .limit(1000)
           .get();
+
       return documentSnapshot.docs
           .map<Item>(
             (data) => Item(
@@ -34,14 +33,18 @@ class MyDatabase {
     } else {
       final documentSnapshot = await itemsCollectionRef
           .orderBy("createdAt", descending: true)
-          .startAfter([items.createdAt])
-          .limit(20)
+          .startAfter([item.createdAt])
+          .limit(1000)
           .get();
+
       return documentSnapshot.docs
-          .map<Item>((data) => Item(
+          .map<Item>(
+            (data) => Item(
               title: data['title'],
               body: data['body'],
-              createdAt: data['createdAt']))
+              createdAt: data['createdAt'],
+            ),
+          )
           .toList();
     }
   }

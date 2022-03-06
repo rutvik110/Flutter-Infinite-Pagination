@@ -2,16 +2,16 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:infinite_pagination/pagination_state.dart';
+import 'package:infinite_pagination/src/pagination_state/pagination_state.dart';
 
 class PaginationNotifier<T> extends StateNotifier<PaginationState<T>> {
   PaginationNotifier({
     required this.fetchNextItems,
-    required this.hitsPerPage,
-  }) : super(const PaginationState.loading([]));
+    required this.itemsPerBatch,
+  }) : super(const PaginationState.loading());
 
-  final Future<List<T>> Function(T? item, int offset) fetchNextItems;
-  final int hitsPerPage;
+  final Future<List<T>> Function(T? item) fetchNextItems;
+  final int itemsPerBatch;
 
   final List<T> _items = [];
 
@@ -21,13 +21,12 @@ class PaginationNotifier<T> extends StateNotifier<PaginationState<T>> {
 
   void init() {
     if (_items.isEmpty) {
-      // _timer.cancel();
-      fetchFirstPage(true);
+      fetchFirstBatch();
     }
   }
 
   void updateData(List<T> result) {
-    noMoreItems = result.length < hitsPerPage;
+    noMoreItems = result.length < itemsPerBatch;
 
     if (result.isEmpty) {
       state = PaginationState.data(_items);
@@ -36,28 +35,20 @@ class PaginationNotifier<T> extends StateNotifier<PaginationState<T>> {
     }
   }
 
-  Future<void> fetchFirstPage(bool clearCurrentList) async {
+  Future<void> fetchFirstBatch() async {
     try {
-      state = PaginationState.loading(_items);
+      state = const PaginationState.loading();
 
-      final List<T> result = _items.isEmpty || clearCurrentList
-          ? await fetchNextItems(
-              null,
-              0,
-            )
-          : await fetchNextItems(_items.last, _items.length);
-      if (clearCurrentList) {
-        _items.clear();
-      }
+      final List<T> result = _items.isEmpty
+          ? await fetchNextItems(null)
+          : await fetchNextItems(_items.last);
       updateData(result);
     } catch (e, stk) {
       state = PaginationState.error(e, stk);
     }
   }
 
-  Future<void> fetchNextPage({
-    bool clearCurrentList = false,
-  }) async {
+  Future<void> fetchNextBatch() async {
     if (_timer.isActive && _items.isNotEmpty) {
       return;
     }
@@ -72,13 +63,14 @@ class PaginationNotifier<T> extends StateNotifier<PaginationState<T>> {
       return;
     }
 
-    log("Passed");
+    log("Fetching next batch of items");
 
     state = PaginationState.onGoingLoading(_items);
 
     try {
       await Future.delayed(const Duration(seconds: 1));
-      final result = await fetchNextItems(_items.last, _items.length);
+      final result = await fetchNextItems(_items.last);
+      log(result.length.toString());
       updateData(result);
     } catch (e, stk) {
       log("Error fetching next page", error: e, stackTrace: stk);

@@ -1,18 +1,17 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:infinite_pagination/database.dart';
-import 'package:infinite_pagination/pagination_notifier.dart';
-import 'package:infinite_pagination/pagination_state.dart';
+import 'package:infinite_pagination/src/database.dart';
+import 'package:infinite_pagination/src/pagination_notifier.dart';
+import 'package:infinite_pagination/src/pagination_state/pagination_state.dart';
 
 final itemsProvider =
     StateNotifierProvider<PaginationNotifier<Item>, PaginationState<Item>>(
         (ref) {
   return PaginationNotifier(
-    hitsPerPage: 20,
+    itemsPerBatch: 20,
     fetchNextItems: (
-      chase,
-      offset,
+      item,
     ) {
-      return ref.read(databaseProvider).fetchItems(chase, offset);
+      return ref.read(databaseProvider).fetchItems(item);
     },
   )..init();
 });

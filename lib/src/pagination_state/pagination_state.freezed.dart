@@ -24,10 +24,8 @@ class _$PaginationStateTearOff {
     );
   }
 
-  _Loading<T> loading<T>(List<T> items) {
-    return _Loading<T>(
-      items,
-    );
+  _Loading<T> loading<T>() {
+    return _Loading<T>();
   }
 
   _Error<T> error<T>(Object? e, [StackTrace? stk]) {
@@ -61,7 +59,7 @@ mixin _$PaginationState<T> {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
@@ -71,7 +69,7 @@ mixin _$PaginationState<T> {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -80,7 +78,7 @@ mixin _$PaginationState<T> {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -198,7 +196,7 @@ class _$_Data<T> implements _Data<T> {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
@@ -211,7 +209,7 @@ class _$_Data<T> implements _Data<T> {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -223,7 +221,7 @@ class _$_Data<T> implements _Data<T> {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -290,7 +288,6 @@ abstract class _$LoadingCopyWith<T, $Res> {
   factory _$LoadingCopyWith(
           _Loading<T> value, $Res Function(_Loading<T>) then) =
       __$LoadingCopyWithImpl<T, $Res>;
-  $Res call({List<T> items});
 }
 
 /// @nodoc
@@ -302,87 +299,64 @@ class __$LoadingCopyWithImpl<T, $Res>
 
   @override
   _Loading<T> get _value => super._value as _Loading<T>;
-
-  @override
-  $Res call({
-    Object? items = freezed,
-  }) {
-    return _then(_Loading<T>(
-      items == freezed
-          ? _value.items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<T>,
-    ));
-  }
 }
 
 /// @nodoc
 
 class _$_Loading<T> implements _Loading<T> {
-  const _$_Loading(this.items);
-
-  @override
-  final List<T> items;
+  const _$_Loading();
 
   @override
   String toString() {
-    return 'PaginationState<$T>.loading(items: $items)';
+    return 'PaginationState<$T>.loading()';
   }
 
   @override
   bool operator ==(dynamic other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _Loading<T> &&
-            const DeepCollectionEquality().equals(other.items, items));
+        (other.runtimeType == runtimeType && other is _Loading<T>);
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(items));
-
-  @JsonKey(ignore: true)
-  @override
-  _$LoadingCopyWith<T, _Loading<T>> get copyWith =>
-      __$LoadingCopyWithImpl<T, _Loading<T>>(this, _$identity);
+  int get hashCode => runtimeType.hashCode;
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
         onGoingError,
   }) {
-    return loading(items);
+    return loading();
   }
 
   @override
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
   }) {
-    return loading?.call(items);
+    return loading?.call();
   }
 
   @override
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
     required TResult orElse(),
   }) {
     if (loading != null) {
-      return loading(items);
+      return loading();
     }
     return orElse();
   }
@@ -429,12 +403,7 @@ class _$_Loading<T> implements _Loading<T> {
 }
 
 abstract class _Loading<T> implements PaginationState<T> {
-  const factory _Loading(List<T> items) = _$_Loading<T>;
-
-  List<T> get items;
-  @JsonKey(ignore: true)
-  _$LoadingCopyWith<T, _Loading<T>> get copyWith =>
-      throw _privateConstructorUsedError;
+  const factory _Loading() = _$_Loading<T>;
 }
 
 /// @nodoc
@@ -508,7 +477,7 @@ class _$_Error<T> implements _Error<T> {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
@@ -521,7 +490,7 @@ class _$_Error<T> implements _Error<T> {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -533,7 +502,7 @@ class _$_Error<T> implements _Error<T> {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -662,7 +631,7 @@ class _$_OnGoingLoading<T> implements _OnGoingLoading<T> {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
@@ -675,7 +644,7 @@ class _$_OnGoingLoading<T> implements _OnGoingLoading<T> {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -687,7 +656,7 @@ class _$_OnGoingLoading<T> implements _OnGoingLoading<T> {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -831,7 +800,7 @@ class _$_OnGoingError<T> implements _OnGoingError<T> {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(List<T> items) data,
-    required TResult Function(List<T> items) loading,
+    required TResult Function() loading,
     required TResult Function(Object? e, StackTrace? stk) error,
     required TResult Function(List<T> items) onGoingLoading,
     required TResult Function(List<T> items, Object? e, StackTrace? stk)
@@ -844,7 +813,7 @@ class _$_OnGoingError<T> implements _OnGoingError<T> {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
@@ -856,7 +825,7 @@ class _$_OnGoingError<T> implements _OnGoingError<T> {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(List<T> items)? data,
-    TResult Function(List<T> items)? loading,
+    TResult Function()? loading,
     TResult Function(Object? e, StackTrace? stk)? error,
     TResult Function(List<T> items)? onGoingLoading,
     TResult Function(List<T> items, Object? e, StackTrace? stk)? onGoingError,
